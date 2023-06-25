@@ -283,7 +283,7 @@
  */
 // #define MAGNETIC_PARKING_EXTRUDER
 
-#if EITHER(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
+#if ANY(PARKING_EXTRUDER, MAGNETIC_PARKING_EXTRUDER)
 
 #define PARKING_EXTRUDER_PARKING_X \
   {                                \
@@ -438,21 +438,21 @@
 // #define PSU_POWERUP_GCODE  "M355 S1"  // G-code to run after power-on (e.g., case light on)
 // #define PSU_POWEROFF_GCODE "M355 S0"  // G-code to run before power-off (e.g., case light off)
 
-// #define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
-#if ENABLED(AUTO_POWER_CONTROL)
-#define AUTO_POWER_FANS // Turn on PSU if fans need power
-#define AUTO_POWER_E_FANS
-#define AUTO_POWER_CONTROLLERFAN
-#define AUTO_POWER_CHAMBER_FAN
-#define AUTO_POWER_COOLER_FAN
-#define POWER_TIMEOUT 30 // (s) Turn off power if the machine is idle for this duration
-// #define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
-#endif
-#if EITHER(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
-// #define AUTO_POWER_E_TEMP        50 // (°C) PSU on if any extruder is over this temperature
-// #define AUTO_POWER_CHAMBER_TEMP  30 // (°C) PSU on if the chamber is over this temperature
-// #define AUTO_POWER_COOLER_TEMP   26 // (°C) PSU on if the cooler is over this temperature
-#endif
+  //#define AUTO_POWER_CONTROL      // Enable automatic control of the PS_ON pin
+  #if ENABLED(AUTO_POWER_CONTROL)
+    #define AUTO_POWER_FANS         // Turn on PSU if fans need power
+    #define AUTO_POWER_E_FANS
+    #define AUTO_POWER_CONTROLLERFAN
+    #define AUTO_POWER_CHAMBER_FAN
+    #define AUTO_POWER_COOLER_FAN
+    #define POWER_TIMEOUT              30 // (s) Turn off power if the machine is idle for this duration
+    //#define POWER_OFF_DELAY          60 // (s) Delay of poweroff after M81 command. Useful to let fans run for extra time.
+  #endif
+  #if ANY(AUTO_POWER_CONTROL, POWER_OFF_WAIT_FOR_COOLDOWN)
+    //#define AUTO_POWER_E_TEMP        50 // (°C) PSU on if any extruder is over this temperature
+    //#define AUTO_POWER_CHAMBER_TEMP  30 // (°C) PSU on if the chamber is over this temperature
+    //#define AUTO_POWER_COOLER_TEMP   26 // (°C) PSU on if the cooler is over this temperature
+  #endif
 #endif
 
 //===========================================================================
@@ -725,15 +725,15 @@
 /**
  * Model Predictive Control for hotend
  *
- * Use a physical model of the hotend to control temperature. When configured correctly
- * this gives better responsiveness and stability than PID and it also removes the need
- * for PID_EXTRUSION_SCALING and PID_FAN_SCALING. Use M306 T to autotune the model.
+ * Use a physical model of the hotend to control temperature. When configured correctly this gives
+ * better responsiveness and stability than PID and removes the need for PID_EXTRUSION_SCALING
+ * and PID_FAN_SCALING. Enable MPC_AUTOTUNE and use M306 T to autotune the model.
  * @section mpctemp
  */
 #if ENABLED(MPCTEMP)
-// #define MPC_AUTOTUNE                              // Include a method to do MPC auto-tuning (~6.3K bytes of flash)
-// #define MPC_EDIT_MENU                             // Add MPC editing to the "Advanced Settings" menu. (~1.3K bytes of flash)
-// #define MPC_AUTOTUNE_MENU                         // Add MPC auto-tuning to the "Advanced Settings" menu. (~350 bytes of flash)
+  #define MPC_AUTOTUNE                                // Include a method to do MPC auto-tuning (~6.3K bytes of flash)
+  //#define MPC_EDIT_MENU                             // Add MPC editing to the "Advanced Settings" menu. (~1.3K bytes of flash)
+  //#define MPC_AUTOTUNE_MENU                         // Add MPC auto-tuning to the "Advanced Settings" menu. (~350 bytes of flash)
 
 #define MPC_MAX 255 // (0..255) Current to nozzle while MPC is active.
 #define MPC_HEATER_POWER \
@@ -769,11 +769,12 @@
 // #define MPC_FAN_0_ACTIVE_HOTEND
 #endif
 
-#define FILAMENT_HEAT_CAPACITY_PERMM \
-  {                                  \
-    5.6e-3f                          \
-  } // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA).
-// #define FILAMENT_HEAT_CAPACITY_PERMM { 3.6e-3f }  // 0.0036 J/K/mm for 1.75mm PETG (0.0094 J/K/mm for 2.85mm PETG).
+  // Filament Heat Capacity (joules/kelvin/mm)
+  // Set at runtime with M306 H<value>
+  #define FILAMENT_HEAT_CAPACITY_PERMM { 5.6e-3f }    // 0.0056 J/K/mm for 1.75mm PLA (0.0149 J/K/mm for 2.85mm PLA).
+                                                      // 0.0036 J/K/mm for 1.75mm PETG (0.0094 J/K/mm for 2.85mm PETG).
+                                                      // 0.00515 J/K/mm for 1.75mm ABS (0.0137 J/K/mm for 2.85mm ABS).
+                                                      // 0.00522 J/K/mm for 1.75mm Nylon (0.0138 J/K/mm for 2.85mm Nylon).
 
 // Advanced options
 #define MPC_SMOOTHING_FACTOR 0.5f   // (0.0...1.0) Noisy temperature sensors may need a lower value for stabilization.
@@ -980,10 +981,10 @@
 #define DELTA_CALIBRATION_DEFAULT_POINTS 4
 #endif
 
-#if EITHER(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
-// Step size for paper-test probing
-#define PROBE_MANUALLY_STEP 0.05 // (mm)
-#endif
+  #if ANY(DELTA_AUTO_CALIBRATION, DELTA_CALIBRATION_MENU)
+    // Step size for paper-test probing
+    #define PROBE_MANUALLY_STEP 0.05      // (mm)
+  #endif
 
 // Print surface diameter/2 minus unreachable space (avoid collisions with vertical towers).
 #define PRINTABLE_RADIUS 140.0 // (mm)
@@ -1028,11 +1029,11 @@
  *   https://www.thingiverse.com/thing:2487048
  *   https://www.thingiverse.com/thing:1241491
  */
-// #define MORGAN_SCARA
-// #define MP_SCARA
-#if EITHER(MORGAN_SCARA, MP_SCARA)
-// If movement is choppy try lowering this value
-#define DEFAULT_SEGMENTS_PER_SECOND 200
+//#define MORGAN_SCARA
+//#define MP_SCARA
+#if ANY(MORGAN_SCARA, MP_SCARA)
+  // If movement is choppy try lowering this value
+  #define DEFAULT_SEGMENTS_PER_SECOND 200
 
 // Length of inner and outer support arms. Measure arm lengths precisely.
 #define SCARA_LINKAGE_1 150 // (mm)
@@ -1952,8 +1953,8 @@
 #define MAX_SOFTWARE_ENDSTOP_W
 #endif
 
-#if EITHER(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
-// #define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
+#if ANY(MIN_SOFTWARE_ENDSTOPS, MAX_SOFTWARE_ENDSTOPS)
+  //#define SOFT_ENDSTOPS_MENU_ITEM  // Enable/Disable software endstops from the LCD
 #endif
 
 /**
@@ -2195,7 +2196,7 @@
 
 #endif
 
-#if EITHER(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
+#if ANY(AUTO_BED_LEVELING_LINEAR, AUTO_BED_LEVELING_BILINEAR)
 
 // Set the number of grid points per dimension.
 #define GRID_MAX_POINTS_X 5
@@ -3532,9 +3533,9 @@
 // #define TOUCH_OFFSET_Y        257
 // #define TOUCH_ORIENTATION TOUCH_LANDSCAPE
 
-#if BOTH(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
-#define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
-#endif
+  #if ALL(TOUCH_SCREEN_CALIBRATION, EEPROM_SETTINGS)
+    #define TOUCH_CALIBRATION_AUTO_SAVE // Auto save successful calibration values to EEPROM
+  #endif
 
 #if ENABLED(TFT_COLOR_UI)
 // #define SINGLE_TOUCH_NAVIGATION
@@ -3629,11 +3630,11 @@
 // #define RGB_LED
 // #define RGBW_LED
 
-#if EITHER(RGB_LED, RGBW_LED)
-// #define RGB_LED_R_PIN 34
-// #define RGB_LED_G_PIN 43
-// #define RGB_LED_B_PIN 35
-// #define RGB_LED_W_PIN -1
+#if ANY(RGB_LED, RGBW_LED)
+  //#define RGB_LED_R_PIN 34
+  //#define RGB_LED_G_PIN 43
+  //#define RGB_LED_B_PIN 35
+  //#define RGB_LED_W_PIN -1
 #endif
 
 #if ANY(RGB_LED, RGBW_LED, PCA9632)
